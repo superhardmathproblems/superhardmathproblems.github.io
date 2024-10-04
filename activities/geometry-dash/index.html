@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Geometry Dash</title>
+  <style>
+    /* Add some basic styling to the game */
+    body {
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+    #canvas {
+      border: 1px solid black;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas" width="640" height="480"></canvas>
+  <script>
+    // Get the canvas element
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // Set the canvas dimensions
+    canvas.width = 640;
+    canvas.height = 480;
+
+    // Define the game constants
+    const GRAVITY = 0.5;
+    const JUMP_SPEED = 10;
+    const PLAYER_SPEED = 5;
+    const OBSTACLE_SPEED = 5;
+
+    // Define the player class
+    class Player {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.speed = PLAYER_SPEED;
+        this.jumpSpeed = JUMP_SPEED;
+        this.gravity = GRAVITY;
+        this.velocity = 0;
+        this.width = 20;
+        this.height = 20;
+      }
+
+      update() {
+        // Update the player's position
+        this.x += this.speed;
+
+        // Update the player's velocity
+        this.velocity += this.gravity;
+
+        // Update the player's position based on the velocity
+        this.y += this.velocity;
+
+        // Check for collisions with the ground
+        if (this.y + this.height > canvas.height) {
+          this.y = canvas.height - this.height;
+          this.velocity = 0;
+        }
+      }
+
+      jump() {
+        // Make the player jump
+        this.velocity = -this.jumpSpeed;
+      }
+
+      draw() {
+        // Draw the player
+        ctx.fillStyle = 'blue';
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+      }
+    }
+
+    // Define the obstacle class
+    class Obstacle {
+      constructor(x, y, width, height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.speed = OBSTACLE_SPEED;
+      }
+
+      update() {
+        // Update the obstacle's position
+        this.x -= this.speed;
+      }
+
+      checkCollision(player) {
+        // Check if the player collides with the obstacle
+        if (player.x + player.width > this.x &&
+            player.x < this.x + this.width &&
+            player.y + player.height > this.y &&
+            player.y < this.y + this.height) {
+          return true;
+        }
+
+        return false;
+      }
+
+      draw() {
+        // Draw the obstacle
+        ctx.fillStyle = 'red';
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+      }
+    }
+
+    // Define the score class
+    class Score {
+      constructor() {
+        this.score = 0;
+      }
+
+      update() {
+        // Update the score
+        this.score++;
+      }
+
+      display() {
+        // Display the score
+        ctx.font = '24px Arial';
+        ctx.fillStyle = 'black';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        ctx.fillText('Score: ' + this.score, 10, 10);
+      }
+    }
+
+    // Create a new player
+    const player = new Player(100, 100);
+
+    // Create a new obstacle
+    const obstacle = new Obstacle(500, 200, 50, 50);
+
+    // Create a new score
+    const score = new Score();
+
+    // Add event listeners to handle user input
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowUp' || event.key === ' ') {
+        player.jump();
+      }
+    });
+
+    // Define the game loop
+    function gameLoop() {
+      // Clear the canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Update the player
+      player.update();
+
+      // Update the obstacle
+      obstacle.update();
+
+      // Check for collisions
+      if (obstacle.checkCollision(player)) {
+        alert('Game Over!');
+        return;
+      }
+
+      // Update the score
+      score.update();
+
+      // Draw the player
+      player.draw();
+
+      // Draw the obstacle
+      obstacle.draw();
+
+      // Display the score
+      score.display();
+
+      // Request the next frame
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Start the game loop
+    gameLoop();
+  </script>
+</body>
+</html>
